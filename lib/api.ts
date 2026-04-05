@@ -167,7 +167,7 @@ export interface OWMCurrent {
   temp?: number; feels_like?: number; humidity?: number; pressure?: number;
   visibility?: number; clouds?: number; wind_speed?: number; wind_gust?: number;
   wind_deg?: number; weather?: OWMWeather[]; sunrise?: number; sunset?: number;
-  uvi: null; dew_point: null;
+  uvi: number | null; dew_point: number | null;
 }
 
 export interface OWMHour {

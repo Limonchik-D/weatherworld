@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import { useState } from 'react';
 import type { WeatherAPIForecast, NormalisedOWM } from '@/lib/api';
 import { wIcon, windDir } from '@/lib/utils';
 
@@ -23,6 +24,19 @@ export default function HeroCard({ w, owm }: HeroCardProps) {
   const hiTemp   = day0?.maxtemp_c;
   const loTemp   = day0?.mintemp_c;
 
+  const [iconErr, setIconErr] = useState(false);
+  const fallbackEmoji = wIcon(c?.condition?.code, c?.is_day);
+
+  // Clean API strings that sometimes contain asterisks or extra separators
+  function cleanGeo(s?: string) {
+    if (!s) return '';
+    return s.replace(/\s*[*|/]\s*/g, ' · ').replace(/\s{2,}/g, ' ').trim();
+  }
+  const displayCountry = cleanGeo(loc?.country);
+  const displayRegion  = cleanGeo(loc?.region);
+  // Don't show region if it duplicates city name or country
+  const showRegion = displayRegion && displayRegion.toLowerCase() !== loc?.name?.toLowerCase() && displayRegion.toLowerCase() !== displayCountry.toLowerCase();
+
   const stats = [
     { e: '💨', v: `${c?.wind_kph != null ? (c.wind_kph / 3.6).toFixed(1) : oc?.wind_speed != null ? oc.wind_speed.toFixed(1) : '—'} м/с`, l: `Ветер ${c?.wind_dir ?? windDir(oc?.wind_deg) ?? ''}`.trim() },
     { e: '💦', v: `${c?.humidity ?? oc?.humidity ?? '—'}%`,  l: 'Влажность' },
@@ -40,7 +54,7 @@ export default function HeroCard({ w, owm }: HeroCardProps) {
       {/* Location */}
       <div className="hero-loc">
         <div className="city-name">{loc ? `${loc.name}` : '—'}</div>
-        {loc && <div className="city-meta">{loc.country}{loc.region ? ` · ${loc.region}` : ''} · {loc.localtime?.split(' ')[1] ?? ''}</div>}
+        {loc && <div className="city-meta">{displayCountry}{showRegion ? ` · ${displayRegion}` : ''} · {loc.localtime?.split(' ')[1] ?? ''}</div>}
       </div>
 
       {/* Temperature + icon */}
@@ -62,12 +76,12 @@ export default function HeroCard({ w, owm }: HeroCardProps) {
           </div>
         </div>
         <div className="hero-icon-side" aria-hidden="true">
-          {owmIcon ? (
-            <Image className="curr-icon-img" src={`https://openweathermap.org/img/wn/${owmIcon}@2x.png`} alt={desc} width={80} height={80} />
-          ) : wApiIcon ? (
-            <Image className="curr-icon-img" src={`https:${wApiIcon}`} alt={desc} width={80} height={80} />
+          {!iconErr && owmIcon ? (
+            <Image className="curr-icon-img" src={`https://openweathermap.org/img/wn/${owmIcon}@2x.png`} alt={desc} width={80} height={80} priority onError={() => setIconErr(true)} />
+          ) : !iconErr && wApiIcon ? (
+            <Image className="curr-icon-img" src={`https:${wApiIcon}`} alt={desc} width={80} height={80} priority onError={() => setIconErr(true)} />
           ) : (
-            <div className="curr-icon-emoji">{wIcon(c?.condition?.code, c?.is_day)}</div>
+            <div className="curr-icon-emoji">{fallbackEmoji}</div>
           )}
         </div>
       </div>

@@ -1,6 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+    || req.headers.get('x-real-ip')
+    || 'unknown';
+  // Search is lightweight; allow more requests than weather endpoint
+  const rl = checkRateLimit(`search_${ip}`, 60);
+  if (!rl.ok) return rateLimitResponse(rl.resetIn);
+
   const WK = process.env.WEATHERAPI_KEY;
   const q = req.nextUrl.searchParams.get('q');
   if (!q || q.length < 2) {

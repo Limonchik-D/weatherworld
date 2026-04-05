@@ -30,7 +30,7 @@ export default function HistoryTab({ hist, dayIdx = 0 }: { hist: unknown[]; dayI
       if (pRef.current) ch.current.p = new Chart(pRef.current, { type: 'bar', data: { labels, datasets: [{ label: 'Осадки мм', data: all.map((h: any) => h.precip_mm), backgroundColor: 'rgba(96,165,250,.4)', borderColor: '#60a5fa', borderWidth: 0, borderRadius: 2 }] }, options: base }) as { destroy?: () => void };
     })();
     return () => { ch.current.t?.destroy?.(); ch.current.p?.destroy?.(); };
-  }, [hist]);
+  }, [hist, dayIdx]);
 
   if (!hist?.length) return <div className="no-data"><i className="fas fa-clock-rotate-left" />Нет исторических данных (нужен платный план WeatherAPI)</div>;
   return (

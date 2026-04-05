@@ -131,9 +131,11 @@ export default function HourlyTab({ w, owm, dayIdx = 0 }: HourlyTabProps) {
             <div key={i} className={`h-item${isNow ? ' h-now' : ''}`} role="listitem" aria-label={isNow ? `Сейчас ${t}` : t}>
               <div className="ht">{t}</div>
               {h.owmIcon ? (
-                <Image src={`https://openweathermap.org/img/wn/${h.owmIcon}@2x.png`} alt={h.condition?.text ?? ''} width={36} height={36} />
+                <Image src={`https://openweathermap.org/img/wn/${h.owmIcon}@2x.png`} alt={h.condition?.text ?? ''} width={36} height={36}
+                  onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
               ) : h.condition?.icon ? (
-                <Image src={`https:${h.condition.icon}`} alt="" width={36} height={36} />
+                <Image src={`https:${h.condition.icon}`} alt="" width={36} height={36}
+                  onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
               ) : (
                 <span className="emoji">{wIcon(h.condition?.code, h.is_day)}</span>
               )}

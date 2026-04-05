@@ -26,6 +26,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  const legalPages: MetadataRoute.Sitemap = [
+    '/legal/privacy',
+    '/legal/terms',
+    '/legal/advertising',
+    '/legal/contacts',
+  ].map(path => ({
+    url: `${BASE}${path}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.3,
+  }));
+
   return [
     {
       url: BASE,
@@ -33,6 +45,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily',
       priority: 1.0,
     },
+    ...legalPages,
     ...cityUrls,
   ];
 }

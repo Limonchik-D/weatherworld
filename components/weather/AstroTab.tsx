@@ -1,6 +1,6 @@
 'use client';
 import type { WeatherAPIForecast, NormalisedOWM } from '@/lib/api';
-import { unixTime, moonPhase, moonEmoji } from '@/lib/utils';
+import { unixTime, moonEmoji } from '@/lib/utils';
 
 interface AstroTabProps { w: WeatherAPIForecast | null; owm: NormalisedOWM | null; dayIdx?: number; }
 
@@ -13,7 +13,7 @@ export default function AstroTab({ w, owm, dayIdx = 0 }: AstroTabProps) {
   const ss = a?.sunset  ?? (dayIdx === 0 && oc?.sunset  ? unixTime(oc.sunset)  : '—');
   const mr = a?.moonrise ?? '—';
   const ms = a?.moonset  ?? '—';
-  const phase = a?.moon_phase ?? moonPhase(od?.pop /* just fallback */);
+  const phase = a?.moon_phase ?? '—';
   const ill = a?.moon_illumination != null ? `${a.moon_illumination}%` : '—';
 
   const items = [

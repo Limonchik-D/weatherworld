@@ -18,6 +18,7 @@ export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderPro
   const [searchExpanded, setSearchExpanded] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchWrapRef = useRef<HTMLDivElement>(null);
   const acTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const { toast } = useToast();
 
@@ -41,6 +42,18 @@ export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderPro
 
   useEffect(() => {
     if (searchExpanded && inputRef.current) inputRef.current.focus();
+  }, [searchExpanded]);
+
+  // Close search on outside click
+  useEffect(() => {
+    if (!searchExpanded) return;
+    const onOutside = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        collapseSearch();
+      }
+    };
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
   }, [searchExpanded]);
 
   function collapseSearch() {
@@ -75,7 +88,7 @@ export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderPro
         <span>WeatherWorld</span>
       </div>
 
-      <div className={`search-wrap${searchExpanded ? ' search-expanded' : ''}`} role="search">
+      <div className={`search-wrap${searchExpanded ? ' search-expanded' : ''}`} role="search" ref={searchWrapRef}>
         <div className="search-inner">
           {!searchExpanded ? (
             <button

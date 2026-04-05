@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   keywords: [
     'погода', 'прогноз погоды', 'погода онлайн', 'погода сегодня',
     'карта погоды', 'осадки', 'температура', 'ветер', 'качество воздуха',
-    'прогноз на неделю', 'weather', 'forecast',
+    'прогноз на неделю', 'weather', 'forecast', 'погода на завтра',
+    'погода на неделю', 'погода в городе', 'точный прогноз',
   ],
   openGraph: {
     type: 'website',
@@ -25,15 +26,17 @@ export const metadata: Metadata = {
     url: BASE_URL,
     siteName: 'WeatherWorld',
     title: 'WeatherWorld — Погода онлайн',
-    description: 'Бесплатный прогноз погоды в любом городе. Интерактивная карта осадков, ветра, температуры.',
+    description: 'Бесплатный прогноз погоды в любом городе. Интерактивная карта осадков, ветра, температуры. Почасовой и 7-дневный прогноз, AQI, астрономические данные.',
+    images: [{ url: `${BASE_URL}/icons/icon-512x512.png`, width: 512, height: 512, alt: 'WeatherWorld' }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'WeatherWorld — Погода онлайн',
-    description: 'Бесплатный прогноз погоды. Карта осадков, ветра и температуры.',
+    description: 'Бесплатный прогноз погоды в любом городе. Карта осадков, ветра и температуры.',
+    images: [`${BASE_URL}/icons/icon-512x512.png`],
   },
   alternates: { canonical: BASE_URL },
-  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
 };
 
 export const viewport: Viewport = {

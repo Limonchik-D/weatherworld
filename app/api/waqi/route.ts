@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 const WAQI_TOKEN = process.env.WAQI_TOKEN ?? 'demo';
 
@@ -9,6 +10,12 @@ const WAQI_TOKEN = process.env.WAQI_TOKEN ?? 'demo';
  * GET /api/waqi?bounds=lat1,lon1,lat2,lon2 — stations in bounding box (for map)
  */
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+    || req.headers.get('x-real-ip')
+    || 'unknown';
+  const rl = checkRateLimit(`waqi_${ip}`, 30);
+  if (!rl.ok) return rateLimitResponse(rl.resetIn);
+
   const { searchParams } = req.nextUrl;
   const lat = searchParams.get('lat');
   const lon = searchParams.get('lon');

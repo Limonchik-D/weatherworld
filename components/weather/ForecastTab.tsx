@@ -90,9 +90,11 @@ export default function ForecastTab({ w, owm, onDayClick }: ForecastTabProps) {
             <div className="fc-day">{dn}</div>
             <div className="fc-icon-wrap">
               {d.owmIcon ? (
-                <Image src={`https://openweathermap.org/img/wn/${d.owmIcon}@2x.png`} alt={dd.condition?.text ?? ''} width={40} height={40} />
+                <Image src={`https://openweathermap.org/img/wn/${d.owmIcon}@2x.png`} alt={dd.condition?.text ?? ''} width={40} height={40}
+                  onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
               ) : dd.condition?.icon ? (
-                <Image src={`https:${dd.condition.icon}`} alt={dd.condition.text} width={40} height={40} />
+                <Image src={`https:${dd.condition.icon}`} alt={dd.condition.text} width={40} height={40}
+                  onError={e => { (e.target as HTMLImageElement).style.display='none'; }} />
               ) : (
                 <span className="emoji">{wIcon(dd.condition?.code, 1)}</span>
               )}

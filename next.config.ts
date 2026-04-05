@@ -10,6 +10,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   images: {
+    // Cloudflare Workers does not support /_next/image optimization
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.weatherapi.com' },
       { protocol: 'https', hostname: 'openweathermap.org' },

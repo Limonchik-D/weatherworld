@@ -54,6 +54,12 @@ function App() {
       setWeatherData({ w, owm, hist, lat, lon });
       setUpdTime(new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }));
 
+      // Update document title for SEO and browser tab
+      const cityName = w?.location?.name ?? hint;
+      const tempStr = w?.current?.temp_c != null ? ` ${Math.round(w.current.temp_c)}°C` : '';
+      const condStr = w?.current?.condition?.text ? ` · ${w.current.condition.text}` : '';
+      if (cityName) document.title = `${cityName}${tempStr}${condStr} | WeatherWorld`;
+
       refreshTimer.current = setInterval(() => {
         cacheBust(lat, lon);
         loadWeather(lat, lon, hint);

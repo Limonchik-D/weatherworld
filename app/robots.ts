@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/api/', '/widget'],
+        allow: ['/', '/legal/'],
+        disallow: ['/api/', '/widget', '/offline'],
       },
     ],
     sitemap: 'https://weatherworld.app/sitemap.xml',
