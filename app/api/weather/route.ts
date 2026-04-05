@@ -1,12 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-const WK = process.env.WEATHERAPI_KEY!;
-const OK = process.env.OWM_KEY!;
-
-if (!WK || !OK) {
-  throw new Error('Missing WEATHERAPI_KEY or OWM_KEY in .env.local');
-}
-
 /** Unified weather endpoint
  *
  * Query params:
@@ -15,6 +8,13 @@ if (!WK || !OK) {
  *   dt         — ISO date string (required for type=history)
  */
 export async function GET(req: NextRequest) {
+  const WK = process.env.WEATHERAPI_KEY;
+  const OK = process.env.OWM_KEY;
+
+  if (!WK || !OK) {
+    return NextResponse.json({ error: 'Missing WEATHERAPI_KEY or OWM_KEY' }, { status: 500 });
+  }
+
   const { searchParams } = req.nextUrl;
   const lat = searchParams.get('lat');
   const lon = searchParams.get('lon');
