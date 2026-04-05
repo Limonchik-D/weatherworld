@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 /** Unified weather endpoint
  *
@@ -8,6 +9,12 @@ import { type NextRequest, NextResponse } from 'next/server';
  *   dt         — ISO date string (required for type=history)
  */
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+    || req.headers.get('x-real-ip')
+    || 'unknown';
+  const rl = checkRateLimit(ip, 30);
+  if (!rl.ok) return rateLimitResponse(rl.resetIn);
+
   const WK = process.env.WEATHERAPI_KEY;
   const OK = process.env.OWM_KEY;
 

@@ -41,15 +41,14 @@ function App() {
       const { w, owm } = await fetchForecast(lat, lon);
       if (!w && !owm) { toast('Оба API недоступны', 'err'); return; }
 
-      // History: last 3 days (graceful – paid plan only)
-      const hist: unknown[] = [];
-      for (let i = 1; i <= 3; i++) {
+      // History: last 3 days in parallel (graceful – paid plan only)
+      const dates = Array.from({ length: 3 }, (_, i) => {
         const dt = new Date();
-        dt.setDate(dt.getDate() - i);
-        const ds = dt.toISOString().split('T')[0];
-        const h = await fetchHistory(lat, lon, ds);
-        if (h) hist.push(h);
-      }
+        dt.setDate(dt.getDate() - (i + 1));
+        return dt.toISOString().split('T')[0];
+      });
+      const histRaw = await Promise.all(dates.map(ds => fetchHistory(lat, lon, ds)));
+      const hist = histRaw.filter(Boolean);
 
       setWeatherData({ w, owm, hist, lat, lon });
       setUpdTime(new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }));

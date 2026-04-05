@@ -11,8 +11,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const apiUrl = isLoopback
-      ? 'http://ip-api.com/json?fields=status,lat,lon,city,country,regionName'
-      : `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,lat,lon,city,country,regionName`;
+      ? 'https://ip-api.com/json?fields=status,lat,lon,city,country,regionName'
+      : `https://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,lat,lon,city,country,regionName`;
 
     const res = await fetch(apiUrl, { next: { revalidate: 0 } });
     if (!res.ok) throw new Error(`ip-api status ${res.status}`);

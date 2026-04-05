@@ -38,7 +38,9 @@ export default function WeatherParticles({ precipMm, conditionCode, windKph, win
   const showPrecip = rain || snow;
   // Show wind flow particles when wind >= 15 kph
   const showWind = windKph >= 15;
-  const active = showPrecip || showWind;
+  // Respect user preference to reduce motion
+  const prefersReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const active = (showPrecip || showWind) && !prefersReduced;
 
   useEffect(() => {
     const canvas = canvasRef.current;
