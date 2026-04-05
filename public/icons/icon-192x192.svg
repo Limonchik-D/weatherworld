@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="100%" stop-color="#2d1b69"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#e879f9"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="192" height="192" rx="34.56" fill="url(#bg)"/>
+  <text x="96" y="102.144" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="61.44" fill="url(#accent)" text-anchor="middle" dominant-baseline="middle">WW</text>
+  <text x="96" y="139.00799999999998" font-family="Arial,Helvetica,sans-serif" font-weight="400" font-size="23.04" fill="rgba(248,244,255,0.6)" text-anchor="middle" dominant-baseline="middle">weather</text>
+  <!-- Sun icon -->
+  <circle cx="149.76" cy="53.76" r="11.52" fill="#fbbf24" opacity="0.9"/>
+  <!-- Cloud -->
+  <ellipse cx="48" cy="46.08" rx="19.200000000000003" ry="10.56" fill="rgba(248,244,255,0.3)"/>
+</svg>
