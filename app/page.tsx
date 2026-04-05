@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import WeatherPanel from '@/components/weather/WeatherPanel';
 import Loader from '@/components/ui/Loader';
+import SplashScreen from '@/components/ui/SplashScreen';
 import { ToastProvider, useToast } from '@/components/ui/Toast';
 import { fetchForecast, fetchHistory, cacheBust } from '@/lib/api';
 import { exportPDF, exportImage } from '@/lib/utils';
@@ -213,6 +214,7 @@ function App() {
 export default function Page() {
   return (
     <ToastProvider>
+      <SplashScreen />
       <App />
     </ToastProvider>
   );

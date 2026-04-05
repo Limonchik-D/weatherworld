@@ -401,7 +401,6 @@ export default function MapBoard({ onLocationPick, markerPos, currentWeather }: 
             { k: 'wind',   label: '💨 Ветер' },
             { k: 'clouds', label: '☁️ Облака' },
             { k: 'radar',  label: '📡 Радар' },
-            { k: 'none',   label: '✕' },
           ].map(({ k, label }) => (
             <button
               key={k}
@@ -413,6 +412,15 @@ export default function MapBoard({ onLocationPick, markerPos, currentWeather }: 
               {label}
             </button>
           ))}
+          {activeLayer !== 'none' && (
+            <button
+              className="mc-btn mc-btn--close"
+              onClick={() => toggleLayer('none')}
+              aria-label="Отключить слой карты"
+            >
+              ✕
+            </button>
+          )}
         </div>
         {/* WAQI stations toggle + info popover */}
         <div className="map-row waqi-row" ref={waqiInfoRef}>
