@@ -1,14 +1,14 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = 'ww-v1';
+const CACHE_NAME = 'ww-v2';
 const OFFLINE_URL = '/offline';
 
 const PRECACHE_URLS = [
   '/',
   '/offline',
-  '/favicon.svg',
-  '/icons/icon-192x192.svg',
-  '/icons/icon-512x512.svg',
+  '/favicon.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
 ];
 
 // Install — precache critical assets
