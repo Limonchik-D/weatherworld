@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-const CACHE_NAME = 'ww-v4';
+const CACHE_NAME = 'ww-v5';
 const OFFLINE_URL = '/offline';
 const SUBSCRIPTION_CACHE = 'ww-subscriptions';
 const SUBSCRIPTION_KEY = '/sw/weather-subscription';

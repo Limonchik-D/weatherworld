@@ -59,8 +59,8 @@ header { position: sticky; top: 0; z-index: 1100; padding: 12px 20px; background
 .logo-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; box-shadow: 0 4px 12px rgba(168,85,247,0.3); }
 .logo-icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
 /* ── Search wrap (grid center column) ── */
-.search-wrap { display: flex; align-items: center; justify-content: center; min-width: 0; }
-.search-inner { position: relative; width: 100%; max-width: 480px; }
+.search-wrap { display: flex; align-items: center; justify-content: center; min-width: 0; gap: 8px; }
+.search-inner { position: relative; flex: 1; min-width: 0; max-width: 480px; }
 /* Collapsed pill button */
 .search-pill-btn { height: 44px; width: 100%; padding: 0 20px; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); border-radius: 22px; color: var(--text2); font-size: .9rem; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: all .3s cubic-bezier(.16,1,.3,1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08); }
 .search-pill-btn:hover { background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.35); color: var(--text1); box-shadow: 0 4px 20px rgba(168,85,247,.2), inset 0 1px 0 rgba(255,255,255,.1); }
@@ -88,9 +88,15 @@ header { position: sticky; top: 0; z-index: 1100; padding: 12px 20px; background
 .ac-suggestion .fa-location-dot { color: var(--purple2); font-size: .75rem; flex-shrink: 0; }
 .ac-suggestion-text { flex: 1; min-width: 0; font-size: .875rem; color: var(--text1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
 .ac-suggestion-hint { flex-shrink: 0; font-size: .7rem; color: var(--text2); background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); border-radius: 6px; padding: 2px 6px; font-family: monospace; }
-/* Notify bell button */
+/* Notify bell button — pill in search area */
+.notify-pill { flex-shrink: 0; width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); color: var(--text2); font-size: .9rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s cubic-bezier(.16,1,.3,1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08); animation: fadeInScale .25s cubic-bezier(.16,1,.3,1) both; }
+.notify-pill:hover { background: rgba(168,85,247,0.18); border-color: rgba(168,85,247,.4); color: var(--purple2); box-shadow: 0 4px 20px rgba(168,85,247,.25); }
+.notify-pill:active { transform: scale(.9); }
+.notify-pill--on { background: rgba(52,211,153,0.15) !important; border-color: rgba(52,211,153,.55) !important; color: #34d399 !important; box-shadow: 0 0 14px rgba(52,211,153,.25), inset 0 1px 0 rgba(255,255,255,.1) !important; }
+.notify-pill--on:hover { background: rgba(52,211,153,0.25) !important; box-shadow: 0 4px 18px rgba(52,211,153,.35) !important; }
+@keyframes fadeInScale { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+/* Notify bell button in header-actions (legacy — kept for ref, not used) */
 .notify-btn { animation: fadeInScale .25s cubic-bezier(.16,1,.3,1) both; }
-@keyframes fadeInScale { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
 .notify-btn--on { background: linear-gradient(135deg,rgba(52,211,153,.25),rgba(16,185,129,.15)) !important; border-color: rgba(52,211,153,.55) !important; color: #34d399 !important; box-shadow: 0 4px 16px rgba(52,211,153,.2), inset 0 1px 0 rgba(255,255,255,.1) !important; }
 .notify-btn--on:hover { background: linear-gradient(135deg,rgba(52,211,153,.38),rgba(16,185,129,.25)) !important; box-shadow: 0 6px 24px rgba(52,211,153,.35) !important; }
 /* SW update banner */

@@ -147,6 +147,16 @@ export default function Header({ updTime, onSearch, onGeo, onExport, selectedCit
       </div>
 
       <div className={`search-wrap${searchExpanded ? ' search-expanded' : ''}`} role="search" ref={searchWrapRef}>
+        {selectedCity && !searchExpanded && (
+          <button
+            className={`notify-pill${notifySubscribed ? ' notify-pill--on' : ''}`}
+            aria-label={notifySubscribed ? 'Отключить уведомления' : 'Уведомлять в 8:00'}
+            onClick={handleNotify}
+            title={notifySubscribed ? `Уведомления для ${selectedCity.name} включены` : `Подписаться на уведомления для ${selectedCity.name}`}
+          >
+            <i className={`fas ${notifySubscribed ? 'fa-bell-slash' : 'fa-bell'}`} aria-hidden="true" />
+          </button>
+        )}
         <div className="search-inner">
           {!searchExpanded ? (
             <button
@@ -216,17 +226,6 @@ export default function Header({ updTime, onSearch, onGeo, onExport, selectedCit
           <i className="fas fa-location-crosshairs" aria-hidden="true" />
           <span className="hbtn-txt">Моё место</span>
         </button>
-
-        {selectedCity && (
-          <button
-            className={`hbtn notify-btn${notifySubscribed ? ' notify-btn--on' : ''}`}
-            aria-label={notifySubscribed ? 'Отключить уведомления' : 'Подписаться на уведомления в 8:00'}
-            onClick={handleNotify}
-          >
-            <i className={`fas ${notifySubscribed ? 'fa-bell-slash' : 'fa-bell'}`} aria-hidden="true" />
-            <span className="hbtn-txt">{notifySubscribed ? 'Уведомл. вкл' : 'Уведомл.'}</span>
-          </button>
-        )}
 
         <InstallButton />
 
