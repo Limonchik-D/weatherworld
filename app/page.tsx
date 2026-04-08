@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -21,6 +21,8 @@ function App() {
   const [loadTxt, setLoadTxt] = useState('Загрузка…');
   const [updTime, setUpdTime] = useState('');
   const [markerPos, setMarkerPos] = useState<{ lat: number; lon: number } | null>(null);
+  const [selectedCity, setSelectedCity] = useState<{ lat: number; lon: number; name: string } | null>(null);
+  const [swUpdateReady, setSwUpdateReady] = useState(false);
   const [weatherData, setWeatherData] = useState<{
     w: WeatherAPIForecast | null;
     owm: NormalisedOWM | null;
@@ -32,6 +34,22 @@ function App() {
   const heroRef = useRef<HTMLDivElement>(null);
   const refreshTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const { toast } = useToast();
+
+  // Detect new SW waiting — prompt user instead of auto-reloading
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    let newWorker: ServiceWorker | null = null;
+    navigator.serviceWorker.ready.then(reg => {
+      reg.addEventListener('updatefound', () => {
+        newWorker = reg.installing;
+        newWorker?.addEventListener('statechange', () => {
+          if (newWorker?.state === 'installed' && navigator.serviceWorker.controller) {
+            setSwUpdateReady(true);
+          }
+        });
+      });
+    });
+  }, []);
 
   const loadWeather = useCallback(async (lat: number, lon: number, hint = '') => {
     setLoading(true);
@@ -53,6 +71,10 @@ function App() {
 
       setWeatherData({ w, owm, hist, lat, lon });
       setUpdTime(new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }));
+
+      // Update selected city for notification button
+      const cityName = w?.location?.name ?? hint;
+      if (cityName) setSelectedCity({ lat, lon, name: cityName });
 
       // Update document title for SEO and browser tab
       const cityName = w?.location?.name ?? hint;
@@ -164,7 +186,22 @@ function App() {
   return (
     <div id="app">
       {loading && <Loader text={loadTxt} />}
-      <Header updTime={updTime} onSearch={loadWeather} onGeo={handleGeo} onExport={handleExport} />
+      {swUpdateReady && (
+        <div className="sw-update-banner">
+          <span>Доступна новая версия</span>
+          <button
+            onClick={() => {
+              navigator.serviceWorker.controller?.postMessage({ type: 'SKIP_WAITING' });
+              setSwUpdateReady(false);
+              window.location.reload();
+            }}
+          >
+            Обновить
+          </button>
+          <button onClick={() => setSwUpdateReady(false)} aria-label="Закрыть">✕</button>
+        </div>
+      )}
+      <Header updTime={updTime} onSearch={loadWeather} onGeo={handleGeo} onExport={handleExport} selectedCity={selectedCity} />
 
       <div id="main" role="main">
         <MapBoard

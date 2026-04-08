@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { fetchSearch, type SearchResult } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 import InstallButton from '@/components/ui/InstallButton';
@@ -9,13 +9,15 @@ interface HeaderProps {
   onSearch: (lat: number, lon: number, name: string) => void;
   onGeo: () => void;
   onExport: (fmt: 'pdf' | 'jpg' | 'png') => void;
+  selectedCity: { lat: number; lon: number; name: string } | null;
 }
 
-export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderProps) {
+export default function Header({ updTime, onSearch, onGeo, onExport, selectedCity }: HeaderProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [exportOpen, setExportOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
+  const [notifySubscribed, setNotifySubscribed] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchWrapRef = useRef<HTMLDivElement>(null);
@@ -30,6 +32,23 @@ export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderPro
       setResults(data.slice(0, 6));
     }, 320);
   }, [query]);
+
+  // Restore subscribed state for the currently selected city
+  useEffect(() => {
+    if (!selectedCity) { setNotifySubscribed(false); return; }
+    try {
+      const stored = localStorage.getItem('ww-notify-city');
+      if (stored) {
+        const saved = JSON.parse(stored) as { lat: number; lon: number };
+        setNotifySubscribed(
+          Math.abs(saved.lat - selectedCity.lat) < 0.01 &&
+          Math.abs(saved.lon - selectedCity.lon) < 0.01
+        );
+      } else {
+        setNotifySubscribed(false);
+      }
+    } catch { setNotifySubscribed(false); }
+  }, [selectedCity]);
 
   useEffect(() => {
     if (!exportOpen) return;
@@ -64,19 +83,58 @@ export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderPro
 
   function hideAC() { setResults([]); }
 
-  async function doSearch() {
-    if (!query.trim()) return;
+  function selectResult(it: SearchResult) {
+    setQuery(it.name);
     hideAC();
-    const coordMatch = /^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/.exec(query.trim());
-    if (coordMatch) { onSearch(+coordMatch[1], +coordMatch[2], query); return; }
-    try {
-      const data = await fetchSearch(query);
-      if (data.length) onSearch(data[0].lat, data[0].lon, data[0].name);
-      else toast('Место не найдено', 'err');
-    } catch {
-      toast('Ошибка поиска', 'err');
-    }
+    collapseSearch();
+    onSearch(it.lat, it.lon, it.name);
   }
+
+  const handleNotify = useCallback(async () => {
+    if (!selectedCity) return;
+    if (!('Notification' in window)) {
+      toast('Браузер не поддерживает уведомления', 'err');
+      return;
+    }
+
+    // Unsubscribe if already subscribed
+    if (notifySubscribed) {
+      localStorage.removeItem('ww-notify-city');
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'UNSUBSCRIBE_WEATHER' });
+      }
+      setNotifySubscribed(false);
+      toast('Уведомления отключены');
+      return;
+    }
+
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      toast('Доступ к уведомлениям запрещён. Разрешите в настройках браузера', 'err');
+      return;
+    }
+
+    const cityData = { lat: selectedCity.lat, lon: selectedCity.lon, name: selectedCity.name };
+    localStorage.setItem('ww-notify-city', JSON.stringify(cityData));
+
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.ready;
+      if (reg.active) {
+        reg.active.postMessage({ type: 'SUBSCRIBE_WEATHER', city: cityData });
+      }
+      // Register periodic background sync if supported
+      if ('periodicSync' in reg) {
+        try {
+          await (reg as ServiceWorkerRegistration & {
+            periodicSync: { register: (tag: string, opts: object) => Promise<void> };
+          }).periodicSync.register('weather-morning', { minInterval: 60 * 60 * 1000 });
+        } catch { /* periodicSync not permitted – SW will still show notifications when app is open */ }
+      }
+    }
+
+    setNotifySubscribed(true);
+    toast(`Уведомления для ${selectedCity.name} настроены на 8:00 🔔`);
+  }, [selectedCity, notifySubscribed, toast]);
 
   return (
     <header role="banner">
@@ -113,8 +171,17 @@ export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderPro
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => {
-                  if (e.key === 'Enter') { e.preventDefault(); doSearch(); }
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (results.length) selectResult(results[0]);
+                    else {
+                      const coordMatch = /^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/.exec(query.trim());
+                      if (coordMatch) { collapseSearch(); onSearch(+coordMatch[1], +coordMatch[2], query); }
+                      else toast('Место не найдено', 'err');
+                    }
+                  }
                   if (e.key === 'Escape') collapseSearch();
+                  if (e.key === 'Tab' && results.length) { e.preventDefault(); selectResult(results[0]); }
                 }}
               />
               <button className="search-clear-btn" aria-label="Закрыть поиск" onClick={collapseSearch}>
@@ -122,22 +189,24 @@ export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderPro
               </button>
             </div>
           )}
+          {/* Single inline suggestion — only show first result */}
           {results.length > 0 && searchExpanded && (
-            <div className="ac-list" role="listbox" aria-label="Подсказки">
-              {results.map(it => (
-                <div
-                  key={it.id}
-                  className="ac-item"
-                  role="option"
-                  tabIndex={0}
-                  onClick={() => { setQuery(it.name); hideAC(); onSearch(it.lat, it.lon, it.name); }}
-                  onKeyDown={e => { if (e.key === 'Enter') { setQuery(it.name); hideAC(); onSearch(it.lat, it.lon, it.name); } }}
-                >
-                  <i className="fas fa-location-dot" aria-hidden="true" style={{ color: 'var(--purple2)', fontSize: '.75rem', flexShrink: 0 }} />
-                  {it.name}, {it.region}, {it.country}
-                </div>
-              ))}
-            </div>
+            <button
+              className="ac-suggestion"
+              role="option"
+              aria-selected="false"
+              onClick={() => selectResult(results[0])}
+            >
+              <i className="fas fa-location-dot" aria-hidden="true" />
+              <span className="ac-suggestion-text">
+                {results[0].name}
+                {results[0].region ? `, ${results[0].region}` : ''}
+                {results[0].country ? `, ${results[0].country}` : ''}
+              </span>
+              <span className="ac-suggestion-hint">
+                {results.length > 1 ? `+${results.length - 1}` : '↵'}
+              </span>
+            </button>
           )}
         </div>
       </div>
@@ -147,6 +216,17 @@ export default function Header({ updTime, onSearch, onGeo, onExport }: HeaderPro
           <i className="fas fa-location-crosshairs" aria-hidden="true" />
           <span className="hbtn-txt">Моё место</span>
         </button>
+
+        {selectedCity && (
+          <button
+            className={`hbtn notify-btn${notifySubscribed ? ' notify-btn--on' : ''}`}
+            aria-label={notifySubscribed ? 'Отключить уведомления' : 'Подписаться на уведомления в 8:00'}
+            onClick={handleNotify}
+          >
+            <i className={`fas ${notifySubscribed ? 'fa-bell-slash' : 'fa-bell'}`} aria-hidden="true" />
+            <span className="hbtn-txt">{notifySubscribed ? 'Уведомл. вкл' : 'Уведомл.'}</span>
+          </button>
+        )}
 
         <InstallButton />
 
